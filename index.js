@@ -273,15 +273,21 @@ function loadConfig() {
 
 // Function to load saved messages
 function loadSavedMessages() {
-  try {
-    const savedMessageJSON = fs.readFileSync(savedMessagesFile) || '{}';
-    return JSON.parse(savedMessageJSON);
-  } catch (error) {
-    console.error('Error reading the saved messages file:', error);
+  // Check if the file exists first
+  if (fs.existsSync(savedMessagesFile)) {
+    try {
+      const savedMessageJSON = fs.readFileSync(savedMessagesFile, 'utf8');
+      return JSON.parse(savedMessageJSON);
+    } catch (error) {
+      console.error('Error reading the saved messages file:', error);
+      return {};
+    }
+  } else {
+    console.log('Saved messages file does not exist, creating a new one.');
+    // Return an empty object as the default content
     return {};
   }
 }
-
 
 // Function to save a message ID
 function saveMessageID(channelID, messageID) {
