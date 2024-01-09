@@ -1,5 +1,4 @@
 const { Client, GatewayIntentBits, ChannelType, PermissionsBitField } = require('discord.js');
-const config = require('./config.json');
 const savedMessagesFile = './savedMessages.json';
 const fs = require('fs');
 const path = require('path');
@@ -92,6 +91,7 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', message => {
+  const config = loadConfig();
   // Ignore messages from bots or without the correct prefix
   if (message.author.bot || !message.content.startsWith(prefix)) return;
 
@@ -108,7 +108,7 @@ client.on('messageCreate', message => {
   if (command === 'help' || command === 'h') {
     let helpMessage = `**Commands:**`;
     helpMessage +=`\n\n\`!help (!h)\`: Display this help.`;
-    helpMessage +=`\n\n\`!addchannel (!ac)\`: Add a channel to monitoring. Usage: \`!addchannel {channelID} {timeoutInt} {timeoutStr} @DoryMod\``;
+    helpMessage +=`\n\n\`!addchannel (!ac)\`: Add a channel to monitoring. Usage: \`!addchannel {channelID} {timeoutInt} {(s|m|h|d|w|y)} @DoryMod\``;
     helpMessage +=`\n\n\`!removechannel (!rc)\`: Remove a channel from monitoring. Usage: \`!removechannel {channelID} @DoryMod\``;
     helpMessage +=`\n\n\`!listchannels (!lc)\`: List all visible text channels.  Usage: \`!listchannels @DoryMod\``;
     helpMessage +=`\n\n\`!listmonitored (!lm)\`: List all monitored channels and their settings.  Usage: \`!listmonitored @DoryMod\``;
@@ -200,7 +200,7 @@ client.on('messageCreate', message => {
         const channelID = args[0];
         const timeoutInt = parseInt(args[1], 10);
         const timeoutStr = args[2].toLowerCase().slice(0,1);
-        const validTimeoutStrs = ['s', 'm', 'h', 'd', 'w', 'm', 'y'];
+        const validTimeoutStrs = ['s', 'm', 'h', 'd', 'w', 'y'];
 
         console.log("Adding channel", {serverID, channelID, timeoutInt, timeoutStr});
         // Validate channel ID, timeout integer, and timeout string
@@ -251,12 +251,22 @@ function saveConfig(newConfig) {
 
 // Function to load the configuration
 function loadConfig() {
+  const configPath = path.join(__dirname, 'config.json');
+
   try {
-    const configPath = path.join(__dirname, 'config.json');
+    // Check if the config file exists
+    if (!fs.existsSync(configPath)) {
+      // If not, create a default config file
+      const defaultConfig = {};
+      fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
+      return defaultConfig;
+    }
+
+    // If the file exists, read and return its content
     const configData = fs.readFileSync(configPath);
     return JSON.parse(configData);
   } catch (err) {
-    console.error('Error reading config file:', err);
+    console.error('Error handling config file:', err);
     return {};
   }
 }
@@ -313,7 +323,6 @@ function timeoutToMillis(timeout) {
     h: 60 * 60 * 1000,
     d: 24 * 60 * 60 * 1000,
     w: 7 * 24 * 60 * 60 * 1000,
-    M: 30 * 24 * 60 * 60 * 1000, // Approximation
     y: 365 * 24 * 60 * 60 * 1000 // Approximation
   };
   return Object.entries(timeout).reduce((acc, [unit, value]) => acc + (value * (timeUnits[unit] || 0)), 0);
