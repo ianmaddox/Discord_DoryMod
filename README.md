@@ -32,3 +32,7 @@ Tips
 
 -   Only admins can configure the bot.
 -   Be careful with threads. If the first message in a thread isn't saved but messages within are, the thread can become orphaned.
+
+Disclaimer
+----
+This application is not infallible and may occasionally make mistakes. The contributors to this open source software are not liable for any lost data, damages, or other unintended outcomes that may result from its use.
