@@ -1,10 +1,14 @@
 {
-  "name": "DiscordDory",
+  "name": "DoryMod",
   "version": "1.0.0",
   "main": "index.js",
   "license": "CC0 1.0 Universal",
   "dependencies": {
     "discord.js": "^14.14.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "nodemon": "^2.0.19"
+  },
+  "scripts": {
+    "start": "nodemon index.js"
   }
 }
